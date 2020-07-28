@@ -10,6 +10,10 @@
 #include <aaudio/AAudio.h>
 #endif
 
+// 0 = input filtering enabled, slow path
+// 1 = input filtering disabled, fast path
+#define RAW_INPUT_STREAM 1
+
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO, "superpoweredlatency", __VA_ARGS__)
 
 static int samplerate;
@@ -104,12 +108,16 @@ static void startOpenSLES() {
     const SLInterfaceID inputInterfaces[2] = { SL_IID_ANDROIDSIMPLEBUFFERQUEUE, SL_IID_ANDROIDCONFIGURATION };
     (*openSLEngineInterface)->CreateAudioRecorder(openSLEngineInterface, &openSLES.inputBufferQueue, &inputSource, &inputSink, 2, inputInterfaces, requireds);
 
-    // Configure the voice recognition preset which has no signal processing for lower latency.
-    SLAndroidConfigurationItf inputConfiguration;
-    if ((*openSLES.inputBufferQueue)->GetInterface(openSLES.inputBufferQueue, SL_IID_ANDROIDCONFIGURATION, &inputConfiguration) == SL_RESULT_SUCCESS) {
-        SLuint32 presetValue = SL_ANDROID_RECORDING_PRESET_VOICE_RECOGNITION;
-        (*inputConfiguration)->SetConfiguration(inputConfiguration, SL_ANDROID_KEY_RECORDING_PRESET, &presetValue, sizeof(SLuint32));
-    };
+    if (RAW_INPUT_STREAM)
+    {
+        // Configure the voice recognition preset which has no signal processing for lower latency.
+        SLAndroidConfigurationItf inputConfiguration;
+        if ((*openSLES.inputBufferQueue)->GetInterface(openSLES.inputBufferQueue, SL_IID_ANDROIDCONFIGURATION, &inputConfiguration) == SL_RESULT_SUCCESS) {
+            SLuint32 presetValue = SL_ANDROID_RECORDING_PRESET_VOICE_RECOGNITION;
+            (*inputConfiguration)->SetConfiguration(inputConfiguration, SL_ANDROID_KEY_RECORDING_PRESET, &presetValue, sizeof(SLuint32));
+        };
+    }
+    
     (*openSLES.inputBufferQueue)->Realize(openSLES.inputBufferQueue, SL_BOOLEAN_FALSE);
 
     // Initialize and start the output buffer queue.
