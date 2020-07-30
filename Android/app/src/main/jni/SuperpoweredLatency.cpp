@@ -110,12 +110,25 @@ static void startOpenSLES() {
 
     if (RAW_INPUT_STREAM)
     {
+        LOGI("Configuring fast path...");
+
         // Configure the voice recognition preset which has no signal processing for lower latency.
         SLAndroidConfigurationItf inputConfiguration;
-        if ((*openSLES.inputBufferQueue)->GetInterface(openSLES.inputBufferQueue, SL_IID_ANDROIDCONFIGURATION, &inputConfiguration) == SL_RESULT_SUCCESS) {
+        if ((*openSLES.inputBufferQueue)->GetInterface(openSLES.inputBufferQueue, SL_IID_ANDROIDCONFIGURATION, &inputConfiguration) == SL_RESULT_SUCCESS)
+        {
+            LOGI("Fast path success");
+
             SLuint32 presetValue = SL_ANDROID_RECORDING_PRESET_VOICE_RECOGNITION;
             (*inputConfiguration)->SetConfiguration(inputConfiguration, SL_ANDROID_KEY_RECORDING_PRESET, &presetValue, sizeof(SLuint32));
-        };
+        }
+        else
+        {
+            LOGI("Fast path failure");
+        }
+    }
+    else
+    {
+        LOGI("Skipping fast path");
     }
     
     (*openSLES.inputBufferQueue)->Realize(openSLES.inputBufferQueue, SL_BOOLEAN_FALSE);
