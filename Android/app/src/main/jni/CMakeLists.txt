@@ -14,11 +14,11 @@ add_library(
 	${CPP_FILES}
 )
 
-add_library(
-	WithAAudio
-	SHARED
-	${CPP_FILES}
-)
+#add_library(
+#	WithAAudio
+#	SHARED
+#	${CPP_FILES}
+#)
 
 include_directories(src/main/jni)
 
@@ -31,12 +31,12 @@ target_link_libraries(
     OpenSLES
 )
 
-target_compile_definitions(WithAAudio PUBLIC HAS_AAUDIO=1)
+#target_compile_definitions(WithAAudio PUBLIC HAS_AAUDIO=1)
 
-target_link_libraries(
-    WithAAudio
-    log
-    android
-    OpenSLES
-    aaudio
-)
+#target_link_libraries(
+#    WithAAudio
+#    log
+#    android
+#    OpenSLES
+#    aaudio
+#)
